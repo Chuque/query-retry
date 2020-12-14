@@ -1,6 +1,6 @@
 {
   "name": "query-retry",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A JavaScript library to better manage API query retries",
   "main": "lib/query-retry.js",
   "scripts": {

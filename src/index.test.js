@@ -25,7 +25,8 @@ describe('queryRetry', () => {
 
     return queryRetry(query, () => true)
       .then(response => {
-        expect(response).toStrictEqual(mockSuccessfulResponse(1))
+        expect(response).toStrictEqual(mockSuccessfulResponse(1));
+        expect(query).toBeCalledTimes(1);
       })
   })
 
@@ -36,7 +37,8 @@ describe('queryRetry', () => {
 
     return queryRetry(query, () => true, { maxRetry: 1 })
       .then(response => {
-        expect(response).toStrictEqual(mockSuccessfulResponse(2))
+        expect(response).toStrictEqual(mockSuccessfulResponse(2));
+        expect(query).toBeCalledTimes(2);
       })
   })
 
@@ -50,7 +52,8 @@ describe('queryRetry', () => {
 
     return queryRetry(query, () => true, { maxRetry: 2 })
       .then(response => {
-        expect(response).toStrictEqual(mockSuccessfulResponse(2))
+        expect(response).toStrictEqual(mockSuccessfulResponse(2));
+        expect(query).toBeCalledTimes(2);
       })
   })
 
@@ -62,7 +65,8 @@ describe('queryRetry', () => {
 
     return queryRetry(query, () => true, { maxRetry: 2 })
       .then(response => {
-        expect(response).toStrictEqual(mockSuccessfulResponse(3))
+        expect(response).toStrictEqual(mockSuccessfulResponse(3));
+        expect(query).toBeCalledTimes(3);
       })
   })
 
@@ -74,7 +78,8 @@ describe('queryRetry', () => {
 
     return queryRetry(query, () => true, { maxRetry: 2, timeout: 150, keepFirstQueryAlive: true })
       .then(response => {
-        expect(response).toStrictEqual(mockSuccessfulResponse(1))
+        expect(response).toStrictEqual(mockSuccessfulResponse(1));
+        expect(query).toBeCalledTimes(2);
       })
   })
 
@@ -86,7 +91,8 @@ describe('queryRetry', () => {
 
     return queryRetry(query, () => true, { maxRetry: 2, timeout: 300, keepFirstQueryAlive: true })
       .then(response => {
-        expect(response).toStrictEqual(mockSuccessfulResponse(1))
+        expect(response).toStrictEqual(mockSuccessfulResponse(1));
+        expect(query).toBeCalledTimes(3);
       })
   })
 
@@ -98,7 +104,8 @@ describe('queryRetry', () => {
 
     return queryRetry(query, () => true, { maxRetry: 2, timeout: 250, keepFirstQueryAlive: true })
       .then(response => {
-        expect(response).toStrictEqual(mockSuccessfulResponse(2))
+        expect(response).toStrictEqual(mockSuccessfulResponse(2));
+        expect(query).toBeCalledTimes(2);
       })
   })
 
@@ -110,11 +117,12 @@ describe('queryRetry', () => {
 
     return queryRetry(query, () => true, { maxRetry: 2, timeout: 250, keepFirstQueryAlive: true })
       .then(response => {
-        expect(response).toStrictEqual(mockSuccessfulResponse(3))
+        expect(response).toStrictEqual(mockSuccessfulResponse(3));
+        expect(query).toBeCalledTimes(3);
       })
   })
 
-  it('should throw error when maxRetry is 0 and timeout is reached', () => {
+  it('should throw error when maxRetry is 0 and timeout is reached and query should not be called more than once', () => {
     const query = jest.fn()
       .mockImplementationOnce(mockApiQuery(300, false, 1))
       .mockImplementationOnce(mockApiQuery(300, false, 2))
@@ -123,6 +131,7 @@ describe('queryRetry', () => {
     return queryRetry(query, () => true, { maxRetry: 0, timeout: 200 })
       .catch(e => {
         expect(e.message).toBe('queryRetry - timeout reached');
+        expect(query).toBeCalledTimes(1);
       })
   })
 
@@ -135,6 +144,7 @@ describe('queryRetry', () => {
     return queryRetry(query, () => false, { maxRetry: 2, timeout: 200 })
       .catch(e => {
         expect(e.message).toBe('queryRetry - responseValidator found no valid responses');
+        expect(query).toBeCalledTimes(3);
       })
   })
 
@@ -147,6 +157,7 @@ describe('queryRetry', () => {
     return queryRetry(query, () => false, { maxRetry: 2, timeout: 200 })
       .catch(e => {
         expect(e.message).toBe('queryRetry - responseValidator found no valid responses');
+        expect(query).toBeCalledTimes(3);
       })
   })
 
@@ -163,7 +174,8 @@ describe('queryRetry', () => {
 
     return queryRetry(query, responseValidator, { maxRetry: 2, timeout: 200 })
       .then(response => {
-        expect(response).toStrictEqual(mockSuccessfulResponse(1))
+        expect(response).toStrictEqual(mockSuccessfulResponse(1));
+        expect(query).toBeCalledTimes(1);
       })
   })
 
@@ -180,7 +192,8 @@ describe('queryRetry', () => {
 
     return queryRetry(query, responseValidator, { maxRetry: 2, timeout: 200 })
       .then(response => {
-        expect(response).toStrictEqual(mockSuccessfulResponse(2))
+        expect(response).toStrictEqual(mockSuccessfulResponse(2));
+        expect(query).toBeCalledTimes(2);
       })
   })
 
@@ -197,7 +210,8 @@ describe('queryRetry', () => {
 
     return queryRetry(query, responseValidator, { maxRetry: 2, timeout: 200 })
       .then(response => {
-        expect(response).toStrictEqual(mockSuccessfulResponse(3))
+        expect(response).toStrictEqual(mockSuccessfulResponse(3));
+        expect(query).toBeCalledTimes(3);
       })
   })
 
@@ -209,7 +223,8 @@ describe('queryRetry', () => {
 
     return queryRetry(query, () => true, { maxRetry: 2, timeout: 200 })
       .then(response => {
-        expect(response).toStrictEqual(mockSuccessfulResponse(2))
+        expect(response).toStrictEqual(mockSuccessfulResponse(2));
+        expect(query).toBeCalledTimes(2);
       })
   })
 
@@ -221,7 +236,50 @@ describe('queryRetry', () => {
 
     return queryRetry(query, () => true, { maxRetry: 2, timeout: 200 })
       .then(response => {
-        expect(response).toStrictEqual(mockSuccessfulResponse(3))
+        expect(response).toStrictEqual(mockSuccessfulResponse(3));
+        expect(query).toBeCalledTimes(3);
+      })
+  })
+
+  it('should return the query response on error object when query is successful but responseValidator returns false', () => {
+    const query = jest.fn()
+      .mockImplementationOnce(mockApiQuery(100, false, 1))
+      .mockImplementationOnce(mockApiQuery(100, false, 2))
+      .mockImplementationOnce(mockApiQuery(100, false, 3));
+
+    return queryRetry(query, () => false, { maxRetry: 0, timeout: 200 })
+      .catch(e => {
+        expect(e.message).toBe('queryRetry - responseValidator found no valid responses');
+        expect(e.response).toStrictEqual(mockSuccessfulResponse(1));
+        expect(query).toBeCalledTimes(1);
+      })
+  })
+
+  it('should return the query response on error object when query is successful but responseValidator returns false - 2', () => {
+    const query = jest.fn()
+      .mockImplementationOnce(mockApiQuery(100, false, 1))
+      .mockImplementationOnce(mockApiQuery(100, false, 2))
+      .mockImplementationOnce(mockApiQuery(100, false, 3));
+
+    return queryRetry(query, () => false, { maxRetry: 1, timeout: 200 })
+      .catch(e => {
+        expect(e.message).toBe('queryRetry - responseValidator found no valid responses');
+        expect(e.response).toStrictEqual(mockSuccessfulResponse(2));
+        expect(query).toBeCalledTimes(2);
+      })
+  })
+
+  it('should return the query response on error object when query is successful but responseValidator returns false - 3', () => {
+    const query = jest.fn()
+      .mockImplementationOnce(mockApiQuery(100, false, 1))
+      .mockImplementationOnce(mockApiQuery(100, false, 2))
+      .mockImplementationOnce(mockApiQuery(100, false, 3));
+
+    return queryRetry(query, () => false, { maxRetry: 2, timeout: 200 })
+      .catch(e => {
+        expect(e.message).toBe('queryRetry - responseValidator found no valid responses');
+        expect(e.response).toStrictEqual(mockSuccessfulResponse(3));
+        expect(query).toBeCalledTimes(3);
       })
   })
 })

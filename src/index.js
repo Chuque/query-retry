@@ -43,7 +43,9 @@ const queryRetry = async (query, responseValidator, config = DEFAULT_CONFIG) => 
         hasPromiseReturned = true;
         resolve(response);
       } else {
-        throw new Error(RESPONSE_VALIDATOR_INVALID_RESPONSE_ERROR_MESSAGE)
+        const error = new Error(RESPONSE_VALIDATOR_INVALID_RESPONSE_ERROR_MESSAGE);
+        error.response = response;
+        throw error;
       }
     } catch (error) {
       if (!(queryCount <= maxRetry)) {
